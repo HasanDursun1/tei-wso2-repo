@@ -40,3 +40,4 @@ steps:
     script: |
       ls -la /home/hasan/repository/deployment/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
   displayName: 'Verify files on target machine'
+
