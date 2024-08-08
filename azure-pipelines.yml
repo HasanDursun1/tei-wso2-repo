@@ -2,7 +2,7 @@ trigger:
 - main # Main branch üzerinde her commit yapıldığında çalışması için
 
 pool:
-  vmImage: 'ubuntu-latest' # Ubuntu tabanlı bir agent kullanacağız
+  name: 'azuretei' # Ubuntu tabanlı bir agent kullanacağız
 
 variables:
   sshConnection: 'ubuntu' # SSH servisi için kullanacağımız service connection adı
