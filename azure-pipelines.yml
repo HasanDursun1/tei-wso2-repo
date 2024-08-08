@@ -2,15 +2,17 @@ trigger:
 - main # Main branch üzerinde her commit yapıldığında çalışması için
 
 pool:
-  name: 'azuretei' # Ubuntu tabanlı bir agent kullanacağız
+  name: 'azuretei' # Kullanacağınız agent pool
 
 variables:
-  sshConnection: 'ubuntu' # SSH servisi için kullanacağımız service connection adı
+  sshConnection: 'ubuntu' # SSH servisi için kullanacağınız service connection adı
 
 steps:
+- checkout: self # Kendi reposundan checkout yapar
+
 - task: CopyFiles@2
   inputs:
-    SourceFolder: 'main/smsProxyWebService/smsProxyWebServiceCompositeExporter/target/' # Repo dosyalarının bulunduğu yer
+    SourceFolder: '$(Build.SourcesDirectory)/smsProxyWebService/smsProxyWebServiceCompositeExporter/target' # Repo dosyalarının bulunduğu yer
     Contents: '**' # Tüm dosyaları kopyala
     TargetFolder: '$(Build.ArtifactStagingDirectory)' # Geçici olarak artifact staging dizinine kopyala
 
@@ -21,7 +23,7 @@ steps:
 
 - task: DownloadBuildArtifacts@0
   inputs:
-    artifactName: 'repo-artifacts' # Daha önce yayınlanan artifact adı
+    artifactName: 'tei-wso2-repo' # Daha önce yayınlanan artifact adı (doğru artifact adı kullanılmalı)
     downloadPath: '$(Build.ArtifactStagingDirectory)' # İndirilecek yer
 
 - task: CopyFilesOverSSH@0
