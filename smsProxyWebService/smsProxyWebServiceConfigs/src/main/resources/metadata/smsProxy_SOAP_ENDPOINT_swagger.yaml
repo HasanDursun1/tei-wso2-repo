@@ -1,0 +1,402 @@
+openapi: 3.0.1
+info:
+  title: smsProxy_SOAP_ENDPOINT
+  description: API Definition of smsProxy_SOAP_ENDPOINT
+  version: 1.0.0
+servers:
+- url: /default
+paths:
+  /getOriginator:
+    post:
+      operationId: getOriginator
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                getOriginator:
+                  $ref: '#/components/schemas/rootElement_getOriginator'
+        required: true
+      responses:
+        default:
+          description: Default Description
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  getOriginatorResponse:
+                    $ref: '#/components/schemas/getOriginatorResponse'
+      x-wso2-soap:
+        x-soap-style: document
+        soap-action: https://webservice.asistiletisim.com.tr/SmsProxy/getOriginator
+        x-soap-message-type: document
+        soap-operation: getOriginator
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+        x-soap-version: '1.1'
+  /getStatus:
+    post:
+      operationId: getStatus
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                getStatus:
+                  $ref: '#/components/schemas/rootElement_getStatus'
+        required: true
+      responses:
+        default:
+          description: Default Description
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  getStatusResponse:
+                    $ref: '#/components/schemas/getStatusResponse'
+      x-wso2-soap:
+        x-soap-style: document
+        soap-action: https://webservice.asistiletisim.com.tr/SmsProxy/getStatus
+        x-soap-message-type: document
+        soap-operation: getStatus
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+        x-soap-version: '1.1'
+  /sendSms:
+    post:
+      operationId: sendSms
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                sendSms:
+                  $ref: '#/components/schemas/rootElement_sendSms'
+        required: true
+      responses:
+        default:
+          description: Default Description
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  sendSmsResponse:
+                    $ref: '#/components/schemas/sendSmsResponse'
+      x-wso2-soap:
+        x-soap-style: document
+        soap-action: https://webservice.asistiletisim.com.tr/SmsProxy/sendSms
+        x-soap-message-type: document
+        soap-operation: sendSms
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+        x-soap-version: '1.1'
+  /confirmSms:
+    post:
+      operationId: confirmSms
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                confirmSms:
+                  $ref: '#/components/schemas/rootElement_confirmSms'
+        required: true
+      responses:
+        default:
+          description: Default Description
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  confirmSmsResponse:
+                    $ref: '#/components/schemas/confirmSmsResponse'
+      x-wso2-soap:
+        x-soap-style: document
+        soap-action: https://webservice.asistiletisim.com.tr/SmsProxy/confirmSms
+        x-soap-message-type: document
+        soap-operation: confirmSms
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+        x-soap-version: '1.1'
+  /getCredit:
+    post:
+      operationId: getCredit
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                getCredit:
+                  $ref: '#/components/schemas/rootElement_getCredit'
+        required: true
+      responses:
+        default:
+          description: Default Description
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  getCreditResponse:
+                    $ref: '#/components/schemas/getCreditResponse'
+      x-wso2-soap:
+        x-soap-style: document
+        soap-action: https://webservice.asistiletisim.com.tr/SmsProxy/getCredit
+        x-soap-message-type: document
+        soap-operation: getCredit
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+        x-soap-version: '1.1'
+  /abortSms:
+    post:
+      operationId: abortSms
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                abortSms:
+                  $ref: '#/components/schemas/rootElement_abortSms'
+        required: true
+      responses:
+        default:
+          description: Default Description
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  abortSmsResponse:
+                    $ref: '#/components/schemas/abortSmsResponse'
+      x-wso2-soap:
+        x-soap-style: document
+        soap-action: https://webservice.asistiletisim.com.tr/SmsProxy/abortSms
+        x-soap-message-type: document
+        soap-operation: abortSms
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+        x-soap-version: '1.1'
+components:
+  schemas:
+    AbortSmsResponse:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          format: int32
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    ArrayOfLong:
+      type: object
+      properties:
+        MessageId:
+          type: array
+          items:
+            type: integer
+            format: int64
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    SendSmsResponse:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          format: int32
+        PacketId:
+          type: string
+        MessageIdList:
+          $ref: '#/components/schemas/ArrayOfLong'
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    GetCreditResponse:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          format: int32
+        Amount:
+          type: integer
+          format: int32
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    ArrayOfString:
+      type: object
+      properties:
+        Originator:
+          type: array
+          items:
+            type: string
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    ConfirmSmsResponse:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          format: int32
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    GetOriginatorResponse:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          format: int32
+        OriginatorList:
+          $ref: '#/components/schemas/ArrayOfString'
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    GetStatusResponse:
+      type: object
+      properties:
+        ErrorCode:
+          type: integer
+          format: int32
+        MessageStatusList:
+          $ref: '#/components/schemas/ArrayOfMessageStatus'
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    ArrayOfMessageStatus:
+      type: object
+      properties:
+        MessageStatus:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageStatus'
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    MessageStatus:
+      type: object
+      properties:
+        MessageId:
+          type: integer
+          format: int64
+        PacketId:
+          type: integer
+          format: int64
+        Receiver:
+          type: string
+        MessageSize:
+          type: string
+          format: byte
+        PersonalParameter:
+          type: string
+        Status:
+          type: integer
+          format: int32
+        DeliveryDate:
+          type: string
+        Reason:
+          type: string
+      xml:
+        namespace: https://webservice.asistiletisim.com.tr/SmsProxy
+      x-namespace-qualified: false
+    rootElement_sendSmsResponse:
+      type: object
+      properties:
+        sendSmsResult:
+          $ref: '#/components/schemas/SendSmsResponse'
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_getStatus:
+      type: object
+      properties:
+        requestXml:
+          type: string
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_confirmSms:
+      type: object
+      properties:
+        requestXml:
+          type: string
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_getOriginator:
+      type: object
+      properties:
+        requestXml:
+          type: string
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_abortSmsResponse:
+      type: object
+      properties:
+        abortSmsResult:
+          $ref: '#/components/schemas/AbortSmsResponse'
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_getCreditResponse:
+      type: object
+      properties:
+        getCreditResult:
+          $ref: '#/components/schemas/GetCreditResponse'
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_getOriginatorResponse:
+      type: object
+      properties:
+        getOriginatorResult:
+          $ref: '#/components/schemas/GetOriginatorResponse'
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_abortSms:
+      type: object
+      properties:
+        requestXml:
+          type: string
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_getCredit:
+      type: object
+      properties:
+        requestXml:
+          type: string
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_sendSms:
+      type: object
+      properties:
+        requestXml:
+          type: string
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_confirmSmsResponse:
+      type: object
+      properties:
+        confirmSmsResult:
+          $ref: '#/components/schemas/ConfirmSmsResponse'
+      xml: {
+        }
+      x-namespace-qualified: false
+    rootElement_getStatusResponse:
+      type: object
+      properties:
+        getStatusResult:
+          $ref: '#/components/schemas/GetStatusResponse'
+      xml: {
+        }
+      x-namespace-qualified: false

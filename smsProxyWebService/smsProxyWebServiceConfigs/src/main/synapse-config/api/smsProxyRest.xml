@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/smsService" name="smsProxyRest" version="1.0.0" version-type="context" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST" url-mapping="/getOriginator">
+        <inSequence>
+            <header name="SOAPAction" scope="transport" value="https://webservice.asistiletisim.com.tr/SmsProxy/getOriginator"/>
+            <property action="remove" name="REST_URL_POSTFIX" scope="axis2"/>
+            <payloadFactory media-type="xml" template-type="freemarker">
+                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+<soapenv:Header/>
+<soapenv:Body>
+<web:getOriginator xmlns:web="https://webservice.asistiletisim.com.tr/SmsProxy"><requestXml>${payload.getOriginator.requestXml}</requestXml></web:getOriginator></soapenv:Body>
+</soapenv:Envelope>
+]]></format>
+                <args/>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+            <call>
+                <endpoint key="smsProxy_SOAP_ENDPOINT_SOAP_ENDPOINT"/>
+            </call>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" url-mapping="/getStatus">
+        <inSequence>
+            <header name="SOAPAction" scope="transport" value="https://webservice.asistiletisim.com.tr/SmsProxy/getStatus"/>
+            <property action="remove" name="REST_URL_POSTFIX" scope="axis2"/>
+            <payloadFactory media-type="xml" template-type="freemarker">
+                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+<soapenv:Header/>
+<soapenv:Body>
+<web:getStatus xmlns:web="https://webservice.asistiletisim.com.tr/SmsProxy"><requestXml>${payload.getStatus.requestXml}</requestXml></web:getStatus></soapenv:Body>
+</soapenv:Envelope>
+]]></format>
+                <args/>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+            <call>
+                <endpoint key="smsProxy_SOAP_ENDPOINT_SOAP_ENDPOINT"/>
+            </call>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" url-mapping="/sendSms">
+        <inSequence>
+            <header name="SOAPAction" scope="transport" value="https://webservice.asistiletisim.com.tr/SmsProxy/sendSms"/>
+            <property action="remove" name="REST_URL_POSTFIX" scope="axis2"/>
+            <property expression="get-property('transport', 'Content-Type')" name="contentType" scope="default" type="STRING"/>
+            <switch source="get-property('contentType')">
+                <case regex="application/json">
+                    <log level="full">
+                        <property name="Message" value="Received JSON payload"/>
+                    </log>
+                    <filter xpath="boolean(//PersonalMessages)">
+                        <then>
+                            <property name="receivers" scope="default" type="STRING" value=""/>
+                            <property name="personalMessages" scope="default" type="STRING" value=""/>
+                            <script language="js"><![CDATA[var receivers = "";
+    var personalMessages = "";
+    var payload = mc.getPayloadJSON();
+    var receiverNodes = payload.SendSms.ReceiverList.Receiver;
+    var personalMessageNodes = payload.SendSms.PersonalMessages.PersonalMessage;
+
+    if (Array.isArray(receiverNodes)) {
+        for (var i = 0; i < receiverNodes.length; i++) {
+            receivers += "<Receiver>" + receiverNodes[i] + "</Receiver>";
+        }
+    } else {
+        receivers = "<Receiver>" + receiverNodes + "</Receiver>";
+    }
+
+    if (Array.isArray(personalMessageNodes)) {
+        for (var j = 0; j < personalMessageNodes.length; j++) {
+            var parameters = "";
+            if (Array.isArray(personalMessageNodes[j].Parameter)) {
+                for (var k = 0; k < personalMessageNodes[j].Parameter.length; k++) {
+                    parameters += "<Parameter>" + personalMessageNodes[j].Parameter[k] + "</Parameter>";
+                }
+            } else {
+                parameters = "<Parameter>" + personalMessageNodes[j].Parameter + "</Parameter>";
+            }
+            personalMessages += "<PersonalMessage>" + parameters + "</PersonalMessage>";
+        }
+    } else {
+        var singleParameters = "";
+        if (Array.isArray(personalMessageNodes.Parameter)) {
+            for (var l = 0; l < personalMessageNodes.Parameter.length; l++) {
+                singleParameters += "<Parameter>" + personalMessageNodes.Parameter[l] + "</Parameter>";
+            }
+        } else {
+            singleParameters = "<Parameter>" + personalMessageNodes.Parameter + "</Parameter>";
+        }
+        personalMessages = "<PersonalMessage>" + singleParameters + "</PersonalMessage>";
+    }
+
+    mc.setProperty("receivers", "<ReceiverList>" + receivers + "</ReceiverList>");
+    mc.setProperty("personalMessages", "<PersonalMessages>" + personalMessages + "</PersonalMessages>");]]></script>
+                            <script language="js"><![CDATA[var payload = mc.getPayloadJSON();        
+					    var message = payload.SendSms.MessageText;
+					    message = "'" + message + "'";
+					    
+					    mc.setProperty("lastMessage",message.toString());]]></script>
+                            <payloadFactory media-type="xml">
+                                <format>
+                                    <SendSms>
+                                        <Username>$1</Username>
+                                        <Password>$2</Password>
+                                        <UserCode>$3</UserCode>
+                                        <AccountId>$4</AccountId>
+                                        <Originator>$5</Originator>
+                                        <SendDate>$6</SendDate>
+                                        <ValidityPeriod>$7</ValidityPeriod>
+                                        <MessageText>$8</MessageText>
+                                        <IsCheckBlackList>$9</IsCheckBlackList>
+                                        <IsEncryptedParameter>$10</IsEncryptedParameter>
+            							$11
+            							$12
+        							</SendSms>
+                                </format>
+                                <args>
+                                    <arg evaluator="json" expression="$.SendSms.Username"/>
+                                    <arg evaluator="json" expression="$.SendSms.Password"/>
+                                    <arg evaluator="json" expression="$.SendSms.UserCode"/>
+                                    <arg evaluator="json" expression="$.SendSms.AccountId"/>
+                                    <arg evaluator="json" expression="$.SendSms.Originator"/>
+                                    <arg evaluator="json" expression="$.SendSms.SendDate"/>
+                                    <arg evaluator="json" expression="$.SendSms.ValidityPeriod"/>
+                                    <arg evaluator="xml" expression="get-property('lastMessage')"/>
+                                    <arg evaluator="json" expression="$.SendSms.IsCheckBlackList"/>
+                                    <arg evaluator="json" expression="$.SendSms.IsEncryptedParameter"/>
+                                    <arg evaluator="xml" expression="get-property('receivers')"/>
+                                    <arg evaluator="xml" expression="get-property('personalMessages')"/>
+                                </args>
+                            </payloadFactory>
+                            <script language="js"><![CDATA[var payload = mc.getPayloadXML();        
+					    var cdataPayload = payload.toString().replace(/</g, "&lt;").replace(' xmlns="http://ws.apache.org/ns/synapse"',"").replace(/'/g,"");
+					    
+					    mc.setProperty("lastPayload",cdataPayload.toString());]]></script>
+                            <log level="full">
+                                <property expression="get-property('lastReceivers')" name="lastReceivers"/>
+                            </log>
+                            <payloadFactory media-type="xml" template-type="freemarker">
+                                <format><![CDATA[
+                                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sms="https://webservice.asistiletisim.com.tr/SmsProxy">
+                                <soapenv:Header/>
+                                <soapenv:Body>
+                                <sms:sendSms>
+                                <sms:requestXml>
+                       						${ctx.lastPayload}
+                    			</sms:requestXml>
+                    			</sms:sendSms>
+                    			</soapenv:Body>
+                    			</soapenv:Envelope>]]></format>
+                                <args/>
+                            </payloadFactory>
+                            <!-- PersonalMessages varsa yapılacak işlemler (yukarıda verilen kodlar) -->
+                        </then>
+                        <else>
+                            <property name="receivers" scope="default" type="STRING" value=""/>
+                            <script language="js"><![CDATA[var receivers = ""
+                            var payload = mc.getPayloadJSON();
+                   			var receiverNodes = payload.SendSms.ReceiverList.Receiver;
+
+                            if (Array.isArray(receiverNodes)) {
+		               			for (var i = 0; i < receiverNodes.length; i++) {
+		                  			receivers += "<Receiver>" + receiverNodes[i] + "</Receiver>";
+		               			}
+	            				} else {
+	               					receivers = "<Receiver>" + receiverNodes + "</Receiver>";
+	            				}
+
+                       		 mc.setProperty("receivers", "<ReceiverList>" + receivers + "</ReceiverList>");]]></script>
+                            <log level="full">
+                                <property expression="get-property('receivers')" name="Payload"/>
+                            </log>
+                            <payloadFactory media-type="xml">
+                                <format>
+                                    <SendSms>
+                                        <Username>$1</Username>
+                                        <Password>$2</Password>
+                                        <UserCode>$3</UserCode>
+                                        <AccountId>$4</AccountId>
+                                        <Originator>$5</Originator>
+                                        <SendDate>$6</SendDate>
+                                        <ValidityPeriod>$7</ValidityPeriod>
+                                        <MessageText>$8</MessageText>
+                                        <IsCheckBlackList>$9</IsCheckBlackList>
+                                        <IsEncryptedParameter>$10</IsEncryptedParameter>
+                     					$11      
+               						</SendSms>
+                                </format>
+                                <args>
+                                    <arg evaluator="json" expression="$.SendSms.Username"/>
+                                    <arg evaluator="json" expression="$.SendSms.Password"/>
+                                    <arg evaluator="json" expression="$.SendSms.UserCode"/>
+                                    <arg evaluator="json" expression="$.SendSms.AccountId"/>
+                                    <arg evaluator="json" expression="$.SendSms.Originator"/>
+                                    <arg evaluator="json" expression="$.SendSms.SendDate"/>
+                                    <arg evaluator="json" expression="$.SendSms.ValidityPeriod"/>
+                                    <arg evaluator="json" expression="$.SendSms.MessageText"/>
+                                    <arg evaluator="json" expression="$.SendSms.IsCheckBlackList"/>
+                                    <arg evaluator="json" expression="$.SendSms.IsEncryptedParameter"/>
+                                    <arg evaluator="xml" expression="get-property('receivers')"/>
+                                </args>
+                            </payloadFactory>
+                            <script language="js"><![CDATA[var payload = mc.getPayloadXML();        
+					    var cdataPayload = payload.toString().replace(/</g, "&lt;").replace(' xmlns="http://ws.apache.org/ns/synapse"',"");
+					    
+					    mc.setProperty("lastPayload",cdataPayload.toString());]]></script>
+                            <log level="full">
+                                <property expression="get-property('lastReceivers')" name="lastReceivers"/>
+                            </log>
+                            <payloadFactory media-type="xml" template-type="freemarker">
+                                <format><![CDATA[
+                                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sms="https://webservice.asistiletisim.com.tr/SmsProxy">
+                                <soapenv:Header/>
+                                <soapenv:Body>
+                                <sms:sendSms>
+                                <sms:requestXml>
+                       						${ctx.lastPayload}
+                    			</sms:requestXml>
+                    			</sms:sendSms>
+                    			</soapenv:Body>
+                    			</soapenv:Envelope>]]></format>
+                                <args/>
+                            </payloadFactory>
+                        </else>
+                    </filter>
+                </case>
+                <case regex="application/xml|text/xml">
+                    <log level="full">
+                        <property name="Message" value="Received XML payload"/>
+                    </log>
+                    <filter xpath="boolean(//PersonalMessages)">
+                        <then>
+                            <script language="js"><![CDATA[var payload = mc.getPayloadXML();        
+					    var cdataPayload = payload.toString().replace(/</g, "&lt;");
+					    
+					    mc.setProperty("lastPayload",cdataPayload.toString());]]></script>
+                            <payloadFactory media-type="xml" template-type="freemarker">
+                                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sms="https://webservice.asistiletisim.com.tr/SmsProxy"><soapenv:Header/><soapenv:Body><sms:sendSms><sms:requestXml>
+                       						${ctx.lastPayload}
+                    					</sms:requestXml></sms:sendSms></soapenv:Body></soapenv:Envelope>]]></format>
+                                <args/>
+                            </payloadFactory>
+                        </then>
+                        <else>
+                            <script language="js"><![CDATA[var payload = mc.getPayloadXML();        
+					    var cdataPayload = payload.toString().replace(/</g, "&lt;");
+					    
+					    mc.setProperty("lastPayload",cdataPayload.toString());]]></script>
+                            <payloadFactory media-type="xml" template-type="freemarker">
+                                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sms="https://webservice.asistiletisim.com.tr/SmsProxy"><soapenv:Header/><soapenv:Body><sms:sendSms><sms:requestXml>
+                       						${ctx.lastPayload}
+                    					</sms:requestXml></sms:sendSms></soapenv:Body></soapenv:Envelope>]]></format>
+                                <args/>
+                            </payloadFactory>
+                        </else>
+                    </filter>
+                </case>
+                <default>
+                    <log level="full">
+                        <property name="Message" value="Unsupported Content-Type"/>
+                    </log>
+                </default>
+            </switch>
+            <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+            <call>
+                <endpoint key="smsProxy_SOAP_ENDPOINT_SOAP_ENDPOINT"/>
+            </call>
+            <filter xpath="get-property('contentType') = 'application/json'">
+                <then>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                </then>
+                <else>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+                </else>
+            </filter>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" url-mapping="/confirmSms">
+        <inSequence>
+            <header name="SOAPAction" scope="transport" value="https://webservice.asistiletisim.com.tr/SmsProxy/confirmSms"/>
+            <property action="remove" name="REST_URL_POSTFIX" scope="axis2"/>
+            <payloadFactory media-type="xml" template-type="freemarker">
+                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+<soapenv:Header/>
+<soapenv:Body>
+<web:confirmSms xmlns:web="https://webservice.asistiletisim.com.tr/SmsProxy"><requestXml>${payload.confirmSms.requestXml}</requestXml></web:confirmSms></soapenv:Body>
+</soapenv:Envelope>
+]]></format>
+                <args/>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+            <call>
+                <endpoint key="smsProxy_SOAP_ENDPOINT_SOAP_ENDPOINT"/>
+            </call>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" url-mapping="/getCredit">
+        <inSequence>
+            <header name="SOAPAction" scope="transport" value="https://webservice.asistiletisim.com.tr/SmsProxy/getCredit"/>
+            <property action="remove" name="REST_URL_POSTFIX" scope="axis2"/>
+            <payloadFactory media-type="xml" template-type="freemarker">
+                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+<soapenv:Header/>
+<soapenv:Body>
+<web:getCredit xmlns:web="https://webservice.asistiletisim.com.tr/SmsProxy"><requestXml>${payload.getCredit.requestXml}</requestXml></web:getCredit></soapenv:Body>
+</soapenv:Envelope>
+]]></format>
+                <args/>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+            <call>
+                <endpoint key="smsProxy_SOAP_ENDPOINT_SOAP_ENDPOINT"/>
+            </call>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" url-mapping="/abortSms">
+        <inSequence>
+            <header name="SOAPAction" scope="transport" value="https://webservice.asistiletisim.com.tr/SmsProxy/abortSms"/>
+            <property action="remove" name="REST_URL_POSTFIX" scope="axis2"/>
+            <payloadFactory media-type="xml" template-type="freemarker">
+                <format><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+<soapenv:Header/>
+<soapenv:Body>
+<web:abortSms xmlns:web="https://webservice.asistiletisim.com.tr/SmsProxy"><requestXml>${payload.abortSms.requestXml}</requestXml></web:abortSms></soapenv:Body>
+</soapenv:Envelope>
+]]></format>
+                <args/>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/soap+xml"/>
+            <call>
+                <endpoint key="smsProxy_SOAP_ENDPOINT_SOAP_ENDPOINT"/>
+            </call>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+</api>
