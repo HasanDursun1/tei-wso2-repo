@@ -1,0 +1,40 @@
+trigger:
+- main # Main branch üzerinde her commit yapıldığında çalışması için
+
+pool:
+  vmImage: 'ubuntu-latest' # Ubuntu tabanlı bir agent kullanacağız
+
+variables:
+  sshConnection: 'ubuntu' # SSH servisi için kullanacağımız service connection adı
+
+steps:
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'main/smsProxyWebService/smsProxyWebServiceCompositeExporter/target/' # Repo dosyalarının bulunduğu yer
+    Contents: '**' # Tüm dosyaları kopyala
+    TargetFolder: '$(Build.ArtifactStagingDirectory)' # Geçici olarak artifact staging dizinine kopyala
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinini publish et
+    artifactName: 'tei-wso2-repo' # Artifact adı
+
+- task: DownloadBuildArtifacts@0
+  inputs:
+    artifactName: 'repo-artifacts' # Daha önce yayınlanan artifact adı
+    downloadPath: '$(Build.ArtifactStagingDirectory)' # İndirilecek yer
+
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'ubuntu' # SSH bağlantısı için Azure DevOps'taki service connection adı
+    sourceFolder: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinindeki dosyalar
+    targetFolder: '/home/hasan/repository/deployment/carbonapps' # Hedef dizin (Linux makine üzerindeki)
+    cleanTargetFolder: false # Hedef dizini temizlemeden dosyaları kopyala
+    overwrite: true # Mevcut dosyaların üzerine yaz
+
+- task: SSH@0
+  inputs:
+    sshEndpoint: '$(sshConnection)'
+    script: |
+      ls -la /home/hasan/repository/deployment/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
+  displayName: 'Verify files on target machine'
