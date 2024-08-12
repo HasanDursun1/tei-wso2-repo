@@ -30,7 +30,7 @@ steps:
   inputs:
     sshEndpoint: 'teiazure' # SSH bağlantısı için Azure DevOps'taki service connection adı
     sourceFolder: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinindeki dosyalar
-    targetFolder: '/home/hasan/repository/deployment/server/carbonapps' # Hedef dizin (Linux makine üzerindeki)
+    targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps' # Hedef dizin (Linux makine üzerindeki)
     cleanTargetFolder: false # Hedef dizini temizlemeden dosyaları kopyala
     overwrite: true # Mevcut dosyaların üzerine yaz
 
