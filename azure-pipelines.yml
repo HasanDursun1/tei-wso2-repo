@@ -34,10 +34,10 @@ steps:
     cleanTargetFolder: false # Hedef dizini temizlemeden dosyaları kopyala
     overwrite: true # Mevcut dosyaların üzerine yaz
 
-- task: SSH@0
-  inputs:
-    sshEndpoint: '$(sshConnection)'
-    script: |
-      ls -la /home/hasan/tei-vol-repository/deployment/server/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
-  displayName: 'Verify files on target machine'
+#- task: SSH@0
+ # inputs:
+  #  sshEndpoint: '$(sshConnection)'
+  #  script: |
+   #   ls -la /home/hasan/tei-vol-repository/deployment/server/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
+  #displayName: 'Verify files on target machine'
 
