@@ -38,6 +38,6 @@ steps:
   inputs:
     sshEndpoint: '$(sshConnection)'
     script: |
-      ls -la /home/hasan/repository/deployment/server/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
+      ls -la /home/hasan/tei-vol-repository/deployment/server/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
   displayName: 'Verify files on target machine'
 
