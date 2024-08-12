@@ -5,7 +5,7 @@ pool:
   name: 'azuretei' # Kullanacağınız agent pool
 
 variables:
-  sshConnection: 'ubuntu' # SSH servisi için kullanacağınız service connection adı
+  sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
 
 steps:
 - checkout: self # Kendi reposundan checkout yapar
