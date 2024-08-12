@@ -1,0 +1,42 @@
+trigger:
+- main # Main branch üzerinde her commit yapıldığında çalışması için
+
+pool:
+  name: 'azuretei' # Kullanacağınız agent pool
+
+variables:
+  sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
+
+steps:
+- checkout: self # Kendi reposundan checkout yapar
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/testdbdenemesi/testdbdenemesiCompositeExporter/target' # Repo dosyalarının bulunduğu yer
+    Contents: '**' # Tüm dosyaları kopyala
+    TargetFolder: '$(Build.ArtifactStagingDirectory)' # Geçici olarak artifact staging dizinine kopyala
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinini publish et
+    artifactName: 'tei-wso2-repo' # Artifact adı
+
+- task: DownloadBuildArtifacts@0
+  inputs:
+    artifactName: 'tei-wso2-repo' # Daha önce yayınlanan artifact adı (doğru artifact adı kullanılmalı)
+    downloadPath: '$(Build.ArtifactStagingDirectory)' # İndirilecek yer
+
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'teiazure' # SSH bağlantısı için Azure DevOps'taki service connection adı
+    sourceFolder: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinindeki dosyalar
+    targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps' # Hedef dizin (Linux makine üzerindeki)
+    cleanTargetFolder: false # Hedef dizini temizlemeden dosyaları kopyala
+    overwrite: true # Mevcut dosyaların üzerine yaz
+
+#- task: SSH@0
+ # inputs:
+  #  sshEndpoint: '$(sshConnection)'
+  #  script: |
+   #   ls -la /home/hasan/tei-vol-repository/deployment/server/carbonapps # Dosyaların başarıyla kopyalandığını doğrulamak için
+  #displayName: 'Verify files on target machine'
