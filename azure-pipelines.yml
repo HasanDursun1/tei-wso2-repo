@@ -28,7 +28,7 @@ steps:
 
 - task: CopyFilesOverSSH@0
   inputs:
-    sshEndpoint: 'ubuntu' # SSH bağlantısı için Azure DevOps'taki service connection adı
+    sshEndpoint: 'teiazure' # SSH bağlantısı için Azure DevOps'taki service connection adı
     sourceFolder: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinindeki dosyalar
     targetFolder: '/home/hasan/repository/deployment/server/carbonapps' # Hedef dizin (Linux makine üzerindeki)
     cleanTargetFolder: false # Hedef dizini temizlemeden dosyaları kopyala
