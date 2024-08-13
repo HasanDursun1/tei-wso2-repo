@@ -6,7 +6,7 @@ pool:
 
 variables:
   sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
-  projectName: 'smsProxyWebService' # Proje adı
+  projectName: 'testdbdenemesi' # Proje adı
   targetFolderName: 'target' # Hedef klasör adı
 
 
