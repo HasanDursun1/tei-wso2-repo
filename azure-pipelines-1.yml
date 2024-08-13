@@ -6,15 +6,19 @@ pool:
 
 variables:
   sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
+  projectName: 'testdbdenemesi' # Proje adı
+  targetFolderName: 'target' # Hedef klasör adı
+
 
 steps:
 - checkout: self # Kendi reposundan checkout yapar
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/testdbdenemesi/testdbdenemesiCompositeExporter/target' # Repo dosyalarının bulunduğu yer
+    SourceFolder: '$(Build.SourcesDirectory)/$(projectName)/$(projectName)CompositeExporter/$(targetFolderName)' # Dinamik repo dosya yolu
     Contents: '**' # Tüm dosyaları kopyala
     TargetFolder: '$(Build.ArtifactStagingDirectory)' # Geçici olarak artifact staging dizinine kopyala
+
 
 - task: PublishBuildArtifacts@1
   inputs:
