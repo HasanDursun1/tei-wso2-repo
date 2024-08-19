@@ -8,7 +8,7 @@ variables:
   sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
   projectName: 'smsProxyWebService' # Proje adı
   targetFolderName: 'target' # Hedef klasör adı
-  configFolderName: 'smsProxyWebService/smsProxyWebServiceConfigs/src/main/resources/dev.yaml' # Konfigürasyon dosyalarının bulunduğu klasör
+  configFolderName: 'resources' # Konfigürasyon dosyalarının bulunduğu klasör
 
 steps:
 - checkout: self # Kendi reposundan checkout yapar
@@ -23,7 +23,7 @@ steps:
 # 2. Konfigürasyon Dosyalarının Kopyalanması
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/$(configFolderName)' # Konfigürasyon dosyalarının olduğu dizin
+    SourceFolder: '$(Build.SourcesDirectory)/$(projectName)/$(projectName)Configs/src/main/$(configFolderName)' # Konfigürasyon dosyalarının olduğu dizin
     Contents: '*.yaml' # Yalnızca yaml dosyalarını kopyala
     TargetFolder: '$(Build.ArtifactStagingDirectory)/configs' # Geçici olarak artifact staging dizinine kopyala
 
