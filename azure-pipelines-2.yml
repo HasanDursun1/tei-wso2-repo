@@ -8,7 +8,7 @@ variables:
   sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
   projectName: 'smsProxyWebService' # Proje adı
   targetFolderName: 'target' # Hedef klasör adı
-  configFolderName: 'smsProxyWebServiceConfigs/src/main/resources' # Konfigürasyon dosyalarının bulunduğu klasör
+  configFolderName: 'smsProxyWebService/smsProxyWebServiceConfigs/src/main/resources/dev.yaml' # Konfigürasyon dosyalarının bulunduğu klasör
 
 steps:
 - checkout: self # Kendi reposundan checkout yapar
