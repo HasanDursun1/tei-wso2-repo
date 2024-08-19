@@ -1,0 +1,65 @@
+trigger:
+- main
+- dev
+- test
+
+pool:
+  name: 'azuretei'
+
+variables:
+  sshConnectionProd: 'prod-ssh'  # Production SSH bağlantısı
+  sshConnectionDev: 'dev-ssh'    # Development SSH bağlantısı
+  sshConnectionTest: 'test-ssh'  # Test SSH bağlantısı
+  projectName: 'smsProxyWebService' # Proje adı
+  targetFolderName: 'target' # Hedef klasör adı
+  configFolderName: 'resources' # Konfigürasyon dosyalarının bulunduğu klasör
+
+steps:
+- checkout: self
+
+# Konfigürasyon Dosyalarının Kopyalanması
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/$(projectName)/$(projectName)Configs/src/main/$(configFolderName)'
+    Contents: '**/*.yaml'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/configs'
+
+# Artefact'ların Yayınlanması
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)/configs'
+    artifactName: 'tei-configs'
+
+# Artifact'ı İndirme
+- task: DownloadBuildArtifacts@0
+  inputs:
+    artifactName: 'tei-configs'
+    downloadPath: '$(Build.ArtifactStagingDirectory)'
+
+# Ortama Göre Deployment
+- ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+  - task: CopyFilesOverSSH@0
+    inputs:
+      sshEndpoint: '$(sshConnectionProd)'
+      sourceFolder: '$(Build.ArtifactStagingDirectory)/configs'
+      targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps'
+      cleanTargetFolder: false
+      overwrite: true
+
+- ${{ if eq(variables['Build.SourceBranchName'], 'dev') }}:
+  - task: CopyFilesOverSSH@0
+    inputs:
+      sshEndpoint: '$(sshConnectionDev)'
+      sourceFolder: '$(Build.ArtifactStagingDirectory)/configs'
+      targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps'
+      cleanTargetFolder: false
+      overwrite: true
+
+- ${{ if eq(variables['Build.SourceBranchName'], 'test') }}:
+  - task: CopyFilesOverSSH@0
+    inputs:
+      sshEndpoint: '$(sshConnectionTest)'
+      sourceFolder: '$(Build.ArtifactStagingDirectory)/configs'
+      targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps'
+      cleanTargetFolder: false
+      overwrite: true
