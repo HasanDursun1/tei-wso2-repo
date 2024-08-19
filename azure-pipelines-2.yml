@@ -31,12 +31,12 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinini publish et
-    artifactName: 'tei-wso2-repo' # Artifact adı
+    artifactName: 'tei-wso2-repo2' # Artifact adı
 
 # 4. Artefact'ların İndirilmesi
 - task: DownloadBuildArtifacts@0
   inputs:
-    artifactName: 'tei-wso2-repo' # Daha önce yayınlanan artifact adı (doğru artifact adı kullanılmalı)
+    artifactName: 'tei-wso2-repo2' # Daha önce yayınlanan artifact adı (doğru artifact adı kullanılmalı)
     downloadPath: '$(Build.ArtifactStagingDirectory)' # İndirilecek yer
 
 # 5. Proje ve Konfigürasyon Dosyalarının Hedef Makineye Kopyalanması
@@ -53,14 +53,14 @@ steps:
   inputs:
     sshEndpoint: 'teiazure' # SSH bağlantısı için Azure DevOps'taki service connection adı
     sourceFolder: '$(Build.ArtifactStagingDirectory)/configs' # Artifact staging dizinindeki config dosyaları
-    targetFolder: '/home/hasan/wso2/configs' # WSO2 içinde konfigürasyon dosyalarının kopyalanacağı dizin
+    targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps' # WSO2 içinde konfigürasyon dosyalarının kopyalanacağı dizin
     cleanTargetFolder: false
     overwrite: true
 
 # 7. WSO2 Server'ın Yeniden Başlatılması
-- task: SSH@0
-  inputs:
-    sshEndpoint: '$(sshConnection)'
-    script: |
-      sudo systemctl restart wso2server # Veya WSO2'nin çalıştığı servisi yeniden başlatma komutu
-  displayName: 'Restart WSO2 Server'
+#- task: SSH@0
+ # inputs:
+  #  sshEndpoint: '$(sshConnection)'
+   # script: |
+    #  sudo systemctl restart wso2server # Veya WSO2'nin çalıştığı servisi yeniden başlatma komutu
+  #displayName: 'Restart WSO2 Server'
