@@ -7,9 +7,9 @@ pool:
   name: 'azuretei'
 
 variables:
-  sshConnectionProd: 'prod-ssh'  # Production SSH bağlantısı
-  sshConnectionDev: 'dev-ssh'    # Development SSH bağlantısı
-  sshConnectionTest: 'test-ssh'  # Test SSH bağlantısı
+  sshConnectionProd: 'teiazure'  # Production SSH bağlantısı
+  sshConnectionDev: 'teiazure'    # Development SSH bağlantısı
+  sshConnectionTest: 'teiazure'  # Test SSH bağlantısı
   projectName: 'smsProxyWebService' # Proje adı
   targetFolderName: 'target' # Hedef klasör adı
   configFolderName: 'resources' # Konfigürasyon dosyalarının bulunduğu klasör
