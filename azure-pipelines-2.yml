@@ -1,0 +1,66 @@
+trigger:
+- main # Main branch üzerinde her commit yapıldığında çalışması için
+
+pool:
+  name: 'azuretei' # Kullanacağınız agent pool
+
+variables:
+  sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
+  projectName: 'smsProxyWebService' # Proje adı
+  targetFolderName: 'target' # Hedef klasör adı
+  configFolderName: 'smsProxyWebServiceConfigs/src/main/resources' # Konfigürasyon dosyalarının bulunduğu klasör
+
+steps:
+- checkout: self # Kendi reposundan checkout yapar
+
+# 1. Proje Dosyalarının Kopyalanması
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/$(projectName)/$(projectName)CompositeExporter/$(targetFolderName)' # Dinamik repo dosya yolu
+    Contents: '**' # Tüm dosyaları kopyala
+    TargetFolder: '$(Build.ArtifactStagingDirectory)' # Geçici olarak artifact staging dizinine kopyala
+
+# 2. Konfigürasyon Dosyalarının Kopyalanması
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/$(configFolderName)' # Konfigürasyon dosyalarının olduğu dizin
+    Contents: '*.yaml' # Yalnızca yaml dosyalarını kopyala
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/configs' # Geçici olarak artifact staging dizinine kopyala
+
+# 3. Artefact'ların Yayınlanması
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinini publish et
+    artifactName: 'tei-wso2-repo' # Artifact adı
+
+# 4. Artefact'ların İndirilmesi
+- task: DownloadBuildArtifacts@0
+  inputs:
+    artifactName: 'tei-wso2-repo' # Daha önce yayınlanan artifact adı (doğru artifact adı kullanılmalı)
+    downloadPath: '$(Build.ArtifactStagingDirectory)' # İndirilecek yer
+
+# 5. Proje ve Konfigürasyon Dosyalarının Hedef Makineye Kopyalanması
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'teiazure' # SSH bağlantısı için Azure DevOps'taki service connection adı
+    sourceFolder: '$(Build.ArtifactStagingDirectory)' # Artifact staging dizinindeki dosyalar
+    targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps' # Hedef dizin (Linux makine üzerindeki)
+    cleanTargetFolder: false # Hedef dizini temizlemeden dosyaları kopyala
+    overwrite: true # Mevcut dosyaların üzerine yaz
+
+# 6. WSO2 Konfigürasyon Dosyalarının Uygun Dizinlere Kopyalanması
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'teiazure' # SSH bağlantısı için Azure DevOps'taki service connection adı
+    sourceFolder: '$(Build.ArtifactStagingDirectory)/configs' # Artifact staging dizinindeki config dosyaları
+    targetFolder: '/home/hasan/wso2/configs' # WSO2 içinde konfigürasyon dosyalarının kopyalanacağı dizin
+    cleanTargetFolder: false
+    overwrite: true
+
+# 7. WSO2 Server'ın Yeniden Başlatılması
+- task: SSH@0
+  inputs:
+    sshEndpoint: '$(sshConnection)'
+    script: |
+      sudo systemctl restart wso2server # Veya WSO2'nin çalıştığı servisi yeniden başlatma komutu
+  displayName: 'Restart WSO2 Server'
