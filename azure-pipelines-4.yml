@@ -4,7 +4,7 @@ trigger:
       - main
 
 pool:
-  vmImage: 'azuretei'  # veya kullanmak istediğiniz özel bir VM image
+  name: 'azuretei'  # veya kullanmak istediğiniz özel bir VM image
 
 jobs:
 - job: BuildAndDeployJob
