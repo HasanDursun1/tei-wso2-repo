@@ -8,27 +8,15 @@ pool:
   vmImage: 'azuretei'  # veya kullanmak istediğiniz özel bir VM image
 
 jobs:
-- job: BuildJob
-  displayName: 'Build Java Project'
+- job: BuildAndDeployJob
+  displayName: 'Build and Deploy Java Project'
   steps:
     - script: |
         echo "Setting JAVA_HOME"
         export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-        echo "Build the services"
+        echo "Building the services"
         cd smsProxyWebService
         mvn clean install -Dmaven.test.skip
-        echo "Build successful. Preparing to upload CAR file."
-      displayName: 'Build and Deploy Java Project'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: '<Azure_Connection_Name>' # Azure DevOps'ta tanımlı olan Azure bağlantınızın adı
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          echo "Uploading CAR file to Azure Blob Storage"
-          az storage blob upload \
-            --account-name <Storage_Account_Name> \
-            --container-name <Container_Name> \
-            --file ./smsProxyWebServiceCompositeExporter/target/smsProxyWebService.car \
-            --name smsProxyWebService.car
+        echo "Build successful. Preparing to copy CAR file to deployments folder."
+        cp ./smsProxyWebServiceCompositeExporter/target/*.car ../deployments/
+      displayName: 'Build and Copy CAR File'
