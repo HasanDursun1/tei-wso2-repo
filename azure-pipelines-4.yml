@@ -17,5 +17,5 @@ jobs:
         cd smsProxyWebService
         mvn clean install -Dmaven.test.skip
         echo "Build successful. Preparing to copy CAR file to deployments folder."
-        cp ./smsProxyWebServiceCompositeExporter/target/*.car ../deployments/smsProxyWebService.car
+        cp ./smsProxyWebServiceCompositeExporter/target/*.car deployments/.
       displayName: 'Build and Copy CAR File'
