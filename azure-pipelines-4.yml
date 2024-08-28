@@ -2,10 +2,9 @@ trigger:
   branches:
     include:
       - main
-      - dev
 
 pool:
-  vmImage: 'teiazure'  # veya kullanmak istediğiniz özel bir VM image
+  vmImage: 'azuretei'  # veya kullanmak istediğiniz özel bir VM image
 
 jobs:
 - job: BuildAndDeployJob
