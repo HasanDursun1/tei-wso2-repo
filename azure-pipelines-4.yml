@@ -5,7 +5,7 @@ trigger:
       - dev
 
 pool:
-  vmImage: 'azuretei'  # veya kullanmak istediğiniz özel bir VM image
+  vmImage: 'teiazure'  # veya kullanmak istediğiniz özel bir VM image
 
 jobs:
 - job: BuildAndDeployJob
