@@ -6,6 +6,12 @@ trigger:
 pool:
   name: 'azuretei'  # veya kullanmak istediğiniz özel bir VM image
 
+variables:
+  sshConnection: 'teiazure' # SSH servisi için kullanacağınız service connection adı
+  projectName: 'smsProxyWebService' # Proje adı
+  targetFolderName: 'target' # Hedef klasör adı
+  configFolderName: 'resources' # Konfigürasyon dosyalarının bulunduğu klasör
+
 jobs:
 - job: BuildAndDeployJob
   displayName: 'Build and Deploy Java Project'
@@ -14,16 +20,53 @@ jobs:
         echo "Setting JAVA_HOME"
         export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
         echo "Building the services"
-        cd smsProxyWebService
+        cd $(Build.SourcesDirectory)/$(projectName)
         mvn clean install -Dmaven.test.skip
         echo "Build successful. Preparing to copy CAR file to deployments folder."
         mkdir -p $(Build.ArtifactStagingDirectory)/deployments
-        cp ./smsProxyWebServiceCompositeExporter/target/*.car $(Build.ArtifactStagingDirectory)/deployments/.
+        cp ./$(projectName)CompositeExporter/$(targetFolderName)/*.car $(Build.ArtifactStagingDirectory)/deployments/.
       displayName: 'Build and Copy CAR File'
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/$(projectName)/$(projectName)Configs/src/main/$(configFolderName)' # Konfigürasyon dosyalarının olduğu dizin
+        Contents: '*.yaml' # Yalnızca yaml dosyalarını kopyala
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/configs' # Geçici olarak artifact staging dizinine kopyala
+      displayName: 'Copy Configuration Files'
 
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
+        ArtifactName: 'tei-wso2-repo2'
         publishLocation: 'Container'
       displayName: 'Publish Artifacts'
+
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        artifactName: 'tei-wso2-repo2'
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Download Build Artifacts'
+
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: '$(sshConnection)'
+        sourceFolder: '$(Build.ArtifactStagingDirectory)'
+        targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps'
+        cleanTargetFolder: false
+        overwrite: true
+      displayName: 'Copy Files to Remote Server'
+
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: '$(sshConnection)'
+        sourceFolder: '$(Build.ArtifactStagingDirectory)/configs'
+        targetFolder: '/home/hasan/tei-vol-repository/deployment/server/carbonapps'
+        cleanTargetFolder: false
+        overwrite: true
+      displayName: 'Copy Configuration Files to Remote Server'
+
+    #- task: SSH@0
+     # inputs:
+     #   sshEndpoint: '$(sshConnection)'
+      #  scriptPath: './restart-wso2-server.sh' # Reboot komutunu içeren bir script dosyası
+      #displayName: 'Restart WSO2 Server'
