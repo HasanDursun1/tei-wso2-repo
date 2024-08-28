@@ -70,3 +70,8 @@ jobs:
      #   sshEndpoint: '$(sshConnection)'
       #  scriptPath: './restart-wso2-server.sh' # Reboot komutunu içeren bir script dosyası
       #displayName: 'Restart WSO2 Server'
+#- task: SSH@0
+ # inputs:
+  #  sshEndpoint: '$(sshConnection)'
+   # runOptions: 'commands'
+    #readyTimeout: '20000'
